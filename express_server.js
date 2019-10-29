@@ -10,7 +10,7 @@ const urlDatabase = {
   // shortURL: 'longURL',
   b2xVn2: 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com',
-  TSN: 'https://www.tsn.ca'
+  '9an2ik': 'https://www.tsn.ca'
 };
 
 function generateRandomString() {
@@ -53,6 +53,11 @@ app.get('/urls/:shortURL', (req, res) => {
 app.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
+});
+
+app.post('/urls/:shortURL/delete', (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls');
 });
 
 app.listen(PORT, () => {
