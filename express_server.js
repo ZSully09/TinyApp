@@ -5,8 +5,9 @@ const PORT = 8080; // default
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
-  b2xVn2: 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
+  LHL: 'http://www.lighthouselabs.ca',
+  Goog: 'http://www.google.com',
+  TSN: 'https://www.tsn.ca'
 };
 
 app.get('/', (req, res) => {
