@@ -7,8 +7,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
-  LHL: 'http://www.lighthouselabs.ca',
-  Goog: 'http://www.google.com',
+  // shortURL: 'longURL',
+  b2xVn2: 'http://www.lighthouselabs.ca',
+  '9sm5xK': 'http://www.google.com',
   TSN: 'https://www.tsn.ca'
 };
 
@@ -22,22 +23,13 @@ function generateRandomString() {
   return result;
 }
 
-app.get('/', (req, res) => {
-  res.send('Hello!');
+app.get('/urls', (req, res) => {
+  let templateVars = { urls: urlDatabase };
+  res.render('urls_index', templateVars);
 });
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
-});
-
-app.get('/hello', (req, res) => {
-  let templateVars = { greeting: 'Hello World!' };
-  res.render('hello_world', templateVars);
-});
-
-app.get('/urls', (req, res) => {
-  let templateVars = { urls: urlDatabase };
-  res.render('urls_index', templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
@@ -50,11 +42,6 @@ app.post('/urls', (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-app.post('/urls', (req, res) => {
-  console.log(req.body);
-  res.send('Ok');
-});
-
 app.get('/urls/:shortURL', (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
@@ -63,9 +50,23 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+app.get('/u/:shortURL', (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+// app.get('/', (req, res) => {
+//   res.send('Hello!');
+// });
+
+// app.get('/hello', (req, res) => {
+//   let templateVars = { greeting: 'Hello World!' };
+//   res.render('hello_world', templateVars);
+// });
 
 // app.get('/set', (req, res) => {
 //   const a = 1;
@@ -75,4 +76,9 @@ app.listen(PORT, () => {
 // a is not defined --> reference error
 // app.get('/fetch', (req, res) => {
 //   res.send(`a = ${a}`);
+// });
+
+// app.post('/urls', (req, res) => {
+//   console.log(req.body);
+//   res.send('Ok');
 // });
