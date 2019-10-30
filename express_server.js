@@ -1,9 +1,11 @@
 const express = require('express');
 const app = express();
+var cookieParser = require('cookie-parser');
 const PORT = 8080; // default
 const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
@@ -24,17 +26,27 @@ function generateRandomString() {
 }
 
 app.get('/urls', (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = {
+    username: req.cookies['username'],
+    urls: urlDatabase
+  };
   res.render('urls_index', templateVars);
 });
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
 });
+// let templateVars = {
+//   username: req.cookies['username']
+// };
 
 app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
+// let templateVars = {
+//   username: req.cookies['username']
+// };
+// , templateVars
 
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
@@ -49,6 +61,9 @@ app.get('/urls/:shortURL', (req, res) => {
   };
   res.render('urls_show', templateVars);
 });
+// let templateVars = {
+//   username: req.cookies['username']
+// };
 
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);

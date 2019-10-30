@@ -14,14 +14,12 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-
-    <title>New URL - TinyApp Example</title>
+    <% include partials/_header %>
   </head>
 
   <body>
-    <% include partials/_header %>
-
     <main style="margin: 1em;">
+      <title>New URL - TinyApp Example</title>
       <h3>Create TinyURL</h3>
       <form class="form-inline" action="/urls" method="POST">
         <div class="form-group mb-2">
