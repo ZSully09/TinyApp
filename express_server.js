@@ -15,6 +15,19 @@ const urlDatabase = {
   '9an2ik': 'https://www.tsn.ca'
 };
 
+const users = {
+  userRandomID: {
+    id: 'userRandomID',
+    email: 'user@example.com',
+    password: 'password'
+  },
+  user2RandomID: {
+    id: 'user2RandomID',
+    email: 'user2@example.com',
+    password: 'password2'
+  }
+};
+
 // Create function to randomize a new 6 character URL given a long URL
 function generateRandomString() {
   let result = '';
@@ -33,6 +46,14 @@ app.get('/urls', (req, res) => {
     urls: urlDatabase
   };
   res.render('urls_index', templateVars);
+});
+
+// Render urls_registration for the registration page
+app.get('/register', (req, res) => {
+  let templateVars = {
+    username: req.cookies['username']
+  };
+  res.render('urls_registration', templateVars);
 });
 
 // Render the /urls.json page in JSON format
