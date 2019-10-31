@@ -123,20 +123,16 @@ app.post('/urls/:shortURL', (req, res) => {
   res.redirect('/urls');
 });
 
-// Post username to username cookie
-app.post('/login', (req, res) => {
-  const user = findID(users, req.body.email);
-  // console.log(user);
-  res.cookie('user_id', user.id);
-  res.redirect('/urls');
-});
-
 // Register a new user and add it to the users object
 app.post('/register', (req, res) => {
   let newID = generateRandomString();
   if (req.body.email === '' || req.body.password === '') {
-    res.sendStatus(400);
-  } else {
+    return res.status(400).send('Email and password cannot be empty');
+  }
+  for (const userId in users) {
+    if (users[userId].email === req.body.email) {
+      return res.status(404).send('Email already associated to a User ID');
+    }
     users[newID] = {
       id: newID,
       email: req.body.email,
@@ -145,6 +141,20 @@ app.post('/register', (req, res) => {
   }
   // console.log(users);
   res.cookie('user_id', newID);
+  res.redirect('/urls');
+});
+
+// Post login; confirm the email is in the user object; if not return 403; if so confirm passwords match, if they dont then return 403. After email and pw confirmation set the cookie to the users id
+app.post('/login', (req, res) => {
+  const user = findID(users, req.body.email);
+  if (req.body.email !== user.email) {
+    return res.status(403).send('Email not found');
+  }
+  if (req.body.password !== user.password) {
+    return res.status(403).send('Password did not match');
+  }
+  // console.log(user);
+  res.cookie('user_id', user.id);
   res.redirect('/urls');
 });
 
