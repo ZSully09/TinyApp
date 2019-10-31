@@ -39,10 +39,20 @@ function generateRandomString() {
   return result;
 }
 
+// Look thru users object to pull an ID given an email and matching password
+const findID = function(users, email) {
+  for (const newID in users) {
+    if (users[newID].email === email) {
+      return users[newID];
+    }
+  }
+  return false;
+};
+
 // Render the /urls page based on the urls_index HTML
 app.get('/urls', (req, res) => {
   let templateVars = {
-    username: req.cookies['username'],
+    user: users[req.cookies['user_id']],
     urls: urlDatabase
   };
   res.render('urls_index', templateVars);
@@ -51,22 +61,30 @@ app.get('/urls', (req, res) => {
 // Render urls_registration for the registration page
 app.get('/register', (req, res) => {
   let templateVars = {
-    username: req.cookies['username']
+    user: users[req.cookies['user_id']]
   };
   res.render('urls_registration', templateVars);
+});
+
+// Rending urls_login for the login page
+app.get('/login', (req, res) => {
+  let templateVars = {
+    user: users[req.cookies['user_id']]
+  };
+  res.render('urls_login', templateVars);
 });
 
 // Render the /urls.json page in JSON format
 app.get('/urls.json', (req, res) => {
   let templateVars = {
-    username: req.cookies['username']
+    user: users[req.cookies['user_id']]
   };
   res.json(urlDatabase, templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
   let templateVars = {
-    username: req.cookies['username']
+    user: users[req.cookies['user_id']]
   };
   res.render('urls_new', templateVars);
 });
@@ -81,7 +99,7 @@ app.post('/urls', (req, res) => {
 
 app.get('/urls/:shortURL', (req, res) => {
   let templateVars = {
-    username: req.cookies['username'],
+    user: users[req.cookies['user_id']],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
@@ -107,10 +125,29 @@ app.post('/urls/:shortURL', (req, res) => {
 
 // Post username to username cookie
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
+  const user = findID(users, req.body.email);
+  res.cookie('username', user.id);
   res.redirect('/urls');
 });
 
+// Register a new user and add it to the users object
+app.post('/register', (req, res) => {
+  let newID = generateRandomString();
+  if (req.body.email === '' || req.body.password === '') {
+    res.sendStatus(400);
+  } else {
+    users[newID] = {
+      id: req.body.newID,
+      email: req.body.email,
+      password: req.body.password
+    };
+  }
+  console.log(newID);
+  res.cookie('user_id', newID);
+  res.redirect('/urls');
+});
+
+// Logout and clear cookies for the user
 app.post('/logout', (req, res) => {
   res.clearCookie('username', req.body.username);
   // req.session = null;
