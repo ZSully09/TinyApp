@@ -126,7 +126,8 @@ app.post('/urls/:shortURL', (req, res) => {
 // Post username to username cookie
 app.post('/login', (req, res) => {
   const user = findID(users, req.body.email);
-  res.cookie('username', user.id);
+  // console.log(user);
+  res.cookie('user_id', user.id);
   res.redirect('/urls');
 });
 
@@ -137,19 +138,19 @@ app.post('/register', (req, res) => {
     res.sendStatus(400);
   } else {
     users[newID] = {
-      id: req.body.newID,
+      id: newID,
       email: req.body.email,
       password: req.body.password
     };
   }
-  console.log(newID);
+  // console.log(users);
   res.cookie('user_id', newID);
   res.redirect('/urls');
 });
 
 // Logout and clear cookies for the user
 app.post('/logout', (req, res) => {
-  res.clearCookie('username', req.body.username);
+  res.clearCookie('user_id', users[req.cookies['user_id']]);
   // req.session = null;
   res.redirect('/urls');
 });
