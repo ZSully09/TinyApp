@@ -20,21 +20,22 @@
     </div>
     <% if(!user) { %>
     <div>
-      <form method="GET" action="/register">
+      <a href="/register" class="btn" style="color: #9ed3a4;">Register</a>
+      <!-- <form method="GET" action="/register">
         <button type="submit" class="btn btn-outline-dark">
           Register
         </button>
-      </form>
+      </form> -->
+      <a href="/login" class="btn" style="color: #9ed3a4;">Login</a>
     </div>
-    <div>
-      <form method="GET" action="/login">
+    <!-- <form method="GET" action="/login">
         <button type="submit" class="btn btn-outline-dark">Login</button>
-      </form>
-    </div>
+      </form> -->
     <% } else {%>
     <div>
+      <!-- <a href="/logout" class="btn">Logout</a> -->
       <form method="POST" action="/logout">
-        Logged in as: <%= user.email %>!
+        Logged In As: <%= user.email %>!
         <button type="submit" class="btn btn-outline-dark">Logout</button>
       </form>
     </div>
