@@ -50,9 +50,11 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars);
 });
 
+// Create New
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
+
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -64,17 +66,6 @@ app.get('/urls/:shortURL', (req, res) => {
   };
   res.render('urls_show', templateVars);
 });
-
-// Post username to username cookie
-app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
-});
-
-// app.post('/logout', (req, res) => {
-//   res.clearCookie('username', req.body.username);
-//   res.redirect('/urls');
-// });
 
 app.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
@@ -93,7 +84,21 @@ app.post('/urls/:shortURL', (req, res) => {
   res.redirect('/urls');
 });
 
-// app.get('*', (req, res))
+// Post username to username cookie
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('/urls');
+});
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('username', req.body.username);
+  console.log('deleting cookies');
+  // req.session = null;
+  res.redirect('/urls');
+});
+
+// Catch all
+// app.get('*', (req, res) res.redirect())
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
