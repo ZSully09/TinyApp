@@ -23,5 +23,18 @@ const getUserByEmail = function (email, database) {
   return undefined;
 };
 
-module.exports = { generateRandomString, getUserByEmail };
+// Leave this function in here as per mentor advice
+// Returns a known users URLs in a object give a passed ID
+const urlsForUser = function (id, urlDatabase) {
+  let usersObject = {};
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      usersObject[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  // console.log(usersObject);
+  return usersObject;
+};
+
+module.exports = { generateRandomString, getUserByEmail, urlsForUser };
 
