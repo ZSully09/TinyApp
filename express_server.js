@@ -42,7 +42,9 @@ const users = {
   }
 };
 
-const urlsForUser = function(id) {
+// Leave this function in here as per mentor advice
+// Returns a known users URLs in a object give a passed ID
+const urlsForUser = function (id) {
   let usersObject = {};
   for (const shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === id) {
