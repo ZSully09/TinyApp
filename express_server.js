@@ -6,13 +6,14 @@ const PORT = 8080; // default
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 
+//MIDDLEWARE
 //app.use(cookieParser());
 app.use(
   cookieSession({
     name: 'session',
     keys: [
-      'asdfghjkl'
       /* secret keys */
+      'asdfghjkl'
     ]
   })
 );
@@ -26,6 +27,7 @@ const urlDatabase = {
   '9an2ik': { longURL: 'https://www.tsn.ca', userID: 'userRandomID' }
 };
 
+// User database including password hashing
 const users = {
   userRandomID: {
     id: 'userRandomID',
@@ -39,7 +41,7 @@ const users = {
   }
 };
 
-// Create function to randomize a new 6 character URL given a long URL
+// Create function to randomize a new 6 character short URL given a long URL
 function generateRandomString() {
   let result = '';
   let characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -51,7 +53,7 @@ function generateRandomString() {
 }
 
 // Look thru users object to pull an ID given an email and matching password
-const findID = function(users, email) {
+const getUserByEmail = function(users, email) {
   for (const newID in users) {
     if (users[newID].email === email) {
       return users[newID];
@@ -59,6 +61,16 @@ const findID = function(users, email) {
   }
   return false;
 };
+
+// Refactor getUserByEmail
+
+// const getUserByEmail = function(email, database) {
+//   for (const user in database) {
+//     if (database[user].email === email) {
+//       return user;
+//     }
+//   }
+// };
 
 const urlsForUser = function(id) {
   let usersObject = {};
@@ -168,12 +180,12 @@ app.post('/urls/:shortURL', (req, res) => {
   res.redirect('/urls');
 });
 
-// Register a new user and add it to the users object
+// Register a new user and add it to the users object with assigned newID
 app.post('/register', (req, res) => {
   let newID = generateRandomString();
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   if (req.body.email === '' || req.body.password === '') {
-    return res.status(400).send('Email and password cannot be empty');
+    return res.status(400).send('Email and/or password cannot be empty');
   }
   for (const userId in users) {
     if (users[userId].email === req.body.email) {
@@ -194,7 +206,7 @@ app.post('/register', (req, res) => {
 
 // Post login; confirm the email is in the user object; if not return 403; if so confirm passwords match, if they dont then return 403. After email and pw confirmation set the cookie to the users id
 app.post('/login', (req, res) => {
-  const user = findID(users, req.body.email);
+  const user = getUserByEmail(users, req.body.email);
   if (req.body.email !== user.email) {
     return res.status(403).send('Email not found');
   }
@@ -216,6 +228,7 @@ app.post('/logout', (req, res) => {
 
 // Catch all
 // app.get('*', (req, res) res.redirect())
+// https://github.com/andydlindsay/oct14-w3d3/blob/master/server-session.js
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
