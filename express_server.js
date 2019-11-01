@@ -3,6 +3,7 @@ const app = express();
 const cookieParser = require('cookie-parser');
 const PORT = 8080; // default
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -19,12 +20,12 @@ const users = {
   userRandomID: {
     id: 'userRandomID',
     email: 'user@example.com',
-    password: 'password'
+    password: bcrypt.hashSync('password', 10)
   },
   user2RandomID: {
     id: 'user2RandomID',
     email: 'user2@example.com',
-    password: 'password2'
+    password: bcrypt.hashSync('password2', 10)
   }
 };
 
@@ -166,6 +167,7 @@ app.post('/urls/:shortURL', (req, res) => {
 // Register a new user and add it to the users object
 app.post('/register', (req, res) => {
   let newID = generateRandomString();
+  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   if (req.body.email === '' || req.body.password === '') {
     return res.status(400).send('Email and password cannot be empty');
   }
@@ -176,8 +178,10 @@ app.post('/register', (req, res) => {
     users[newID] = {
       id: newID,
       email: req.body.email,
-      password: req.body.password
+      password: hashedPassword
     };
+    // console.log(bcrypt.compareSync('asdf', hashedPassword));
+    // console.log(hashedPassword);
   }
   // console.log(users);
   res.cookie('user_id', newID);
@@ -190,7 +194,9 @@ app.post('/login', (req, res) => {
   if (req.body.email !== user.email) {
     return res.status(403).send('Email not found');
   }
-  if (req.body.password !== user.password) {
+  // console.log(user.password);
+  // console.log(bcrypt.compareSync(req.body.password, user.password));
+  if (!bcrypt.compareSync(req.body.password, user.password)) {
     return res.status(403).send('Password did not match');
   }
   // console.log(user);
