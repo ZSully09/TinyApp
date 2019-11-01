@@ -1,4 +1,4 @@
-const { generateRandomString, getUserByEmail } = require('./helpers.js');
+const { generateRandomString, getUserByEmail, urlsForUser } = require('./helpers.js');
 const express = require('express');
 const app = express();
 // const cookieParser = require('cookie-parser');
@@ -42,25 +42,20 @@ const users = {
   }
 };
 
-// Leave this function in here as per mentor advice
-// Returns a known users URLs in a object give a passed ID
-const urlsForUser = function (id) {
-  let usersObject = {};
-  for (const shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      usersObject[shortURL] = urlDatabase[shortURL];
-    }
+// 
+app.get('/', (req, res) => {
+  if (users[req.session.user_id]) {
+    return res.redirect(`/urls`);
   }
-  // console.log(usersObject);
-  return usersObject;
-};
+  return res.redirect(`/login`);
+});
 
 // Render the /urls page based on the urls_index HTML
 app.get('/urls', (req, res) => {
   // console.log('Cookie ', req.session.user_id);
   let templateVars = {
     user: users[req.session.user_id],
-    urls: urlsForUser(req.session.user_id)
+    urls: urlsForUser(req.session.user_id, urlDatabase)
   };
   res.render('urls_index', templateVars);
 });
