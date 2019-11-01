@@ -1,3 +1,4 @@
+const { generateRandomString, getUserByEmail } = require('./helpers.js');
 const express = require('express');
 const app = express();
 // const cookieParser = require('cookie-parser');
@@ -7,6 +8,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 
 //MIDDLEWARE
+app.set('view engine', 'ejs');
 //app.use(cookieParser());
 app.use(
   cookieSession({
@@ -18,7 +20,6 @@ app.use(
   })
 );
 app.use(bodyParser.urlencoded({ extended: true }));
-app.set('view engine', 'ejs');
 
 const urlDatabase = {
   // shortURL: 'longURL',
@@ -39,39 +40,6 @@ const users = {
     email: 'user2@example.com',
     password: bcrypt.hashSync('password2', 10)
   }
-};
-
-// Create function to randomize a new 6 character short URL given a long URL
-function generateRandomString() {
-  let result = '';
-  let characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let charactersLength = characters.length;
-  for (let i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
-
-// Look thru users object to pull an ID given an email and matching password
-// const getUserByEmail = function(users, email) {
-//   for (const newID in users) {
-//     if (users[newID].email === email) {
-//       return users[newID];
-//     }
-//   }
-//   return false;
-// };
-
-// Refactor getUserByEmail
-
-const getUserByEmail = function(email, database) {
-  for (const user in database) {
-    // console.log('Another', database[user].email, email);
-    if (database[user].email === email) {
-      return database[user];
-    }
-  }
-  return {};
 };
 
 const urlsForUser = function(id) {
