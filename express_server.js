@@ -43,12 +43,12 @@ const users = {
 };
 
 // 
-// app.get('/', (req, res) => {
-//   if (users[req.session.user_id]) {
-//     return res.redirect(`/urls`);
-//   }
-//   return res.redirect(`/login`);
-// });
+app.get('/', (req, res) => {
+  if (users[req.session.user_id]) {
+    return res.redirect(`/urls`);
+  }
+  return res.redirect(`/login`);
+});
 
 // Render the /urls page based on the urls_index HTML
 app.get('/urls', (req, res) => {
