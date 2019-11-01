@@ -1,11 +1,21 @@
 const express = require('express');
 const app = express();
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const PORT = 8080; // default
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 
-app.use(cookieParser());
+//app.use(cookieParser());
+app.use(
+  cookieSession({
+    name: 'session',
+    keys: [
+      'asdfghjkl'
+      /* secret keys */
+    ]
+  })
+);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
@@ -64,8 +74,8 @@ const urlsForUser = function(id) {
 // Render the /urls page based on the urls_index HTML
 app.get('/urls', (req, res) => {
   let templateVars = {
-    user: users[req.cookies['user_id']],
-    urls: urlsForUser(req.cookies['user_id'])
+    user: users[req.session.user_id],
+    urls: urlsForUser(req.session.user_id)
   };
   res.render('urls_index', templateVars);
 });
@@ -73,7 +83,7 @@ app.get('/urls', (req, res) => {
 // Render urls_registration for the registration page
 app.get('/register', (req, res) => {
   let templateVars = {
-    user: users[req.cookies['user_id']]
+    user: users[req.session.user_id]
   };
   res.render('urls_registration', templateVars);
 });
@@ -81,7 +91,7 @@ app.get('/register', (req, res) => {
 // Rending urls_login for the login page
 app.get('/login', (req, res) => {
   let templateVars = {
-    user: users[req.cookies['user_id']]
+    user: users[req.session.user_id]
   };
   res.render('urls_login', templateVars);
 });
@@ -89,18 +99,18 @@ app.get('/login', (req, res) => {
 // Render the /urls.json page in JSON format
 app.get('/urls.json', (req, res) => {
   let templateVars = {
-    user: users[req.cookies['user_id']]
+    user: users[req.session.user_id]
   };
   res.json(urlDatabase, templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
   // if the user is undefined redirect to the login page
-  if (!users[req.cookies['user_id']]) {
+  if (!users[req.session.user_id]) {
     return res.redirect(`/login`);
   }
   let templateVars = {
-    user: users[req.cookies['user_id']]
+    user: users[req.session.user_id]
   };
   res.render('urls_new', templateVars);
 });
@@ -110,7 +120,7 @@ app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
-    userID: req.cookies['user_id']
+    userID: req.session.user_id
   };
   // console.log('hola');
   // console.log(urlDatabase);
@@ -119,13 +129,11 @@ app.post('/urls', (req, res) => {
 
 // Edit
 app.get('/urls/:shortURL', (req, res) => {
-  if (
-    urlDatabase[req.params.shortURL].longURL !== users[req.cookies['user_id']]
-  ) {
+  if (urlDatabase[req.params.shortURL].userID !== req.session.user_id) {
     return res.status(403).send('You are forbidden from editing this url');
   }
   let templateVars = {
-    user: users[req.cookies['user_id']],
+    user: users[req.session.user_id],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL
   };
@@ -142,9 +150,7 @@ app.get('/u/:shortURL', (req, res) => {
 
 // Delete
 app.post('/urls/:shortURL/delete', (req, res) => {
-  if (
-    urlDatabase[req.params.shortURL].userID !== users[req.cookies['user_id']]
-  ) {
+  if (urlDatabase[req.params.shortURL].userID !== req.session.user_id) {
     return res.redirect('/urls');
   }
   delete urlDatabase[req.params.shortURL];
@@ -153,9 +159,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 // Post for edit
 app.post('/urls/:shortURL', (req, res) => {
-  if (
-    urlDatabase[req.params.shortURL].userID !== users[req.cookies['user_id']]
-  ) {
+  if (urlDatabase[req.params.shortURL].userID !== req.session.user_id) {
     return res.status(403).send('You are forbidden from editing this url');
   }
   let shortURL = req.params.shortURL;
@@ -184,7 +188,7 @@ app.post('/register', (req, res) => {
     // console.log(hashedPassword);
   }
   // console.log(users);
-  res.cookie('user_id', newID);
+  req.session.user_id = newID;
   res.redirect('/urls');
 });
 
@@ -200,14 +204,13 @@ app.post('/login', (req, res) => {
     return res.status(403).send('Password did not match');
   }
   // console.log(user);
-  res.cookie('user_id', user.id);
+  req.session.user_id = user.id;
   res.redirect('/urls');
 });
 
 // Logout and clear cookies for the user
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id');
-  // req.session = null;
+  req.session = null;
   res.redirect('/urls');
 });
 
@@ -217,29 +220,3 @@ app.post('/logout', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-// app.get('/', (req, res) => {
-//   res.send('Hello!');
-// });
-
-// app.get('/hello', (req, res) => {
-//   let templateVars = { greeting: 'Hello World!' };
-//   res.render('hello_world', templateVars);
-// });
-
-// app.get('/set', (req, res) => {
-//   const a = 1;
-//   res.send(`a = ${a}`);
-// });
-
-// a is not defined --> reference error
-// app.get('/fetch', (req, res) => {
-//   res.send(`a = ${a}`);
-// });
-
-// app.post('/urls', (req, res) => {
-//   console.log(req.body);
-//   res.send('Ok');
-// });
-
-// <h2> You are loggin is as <%= username %></h2>
