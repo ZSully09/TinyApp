@@ -10,9 +10,9 @@ app.set('view engine', 'ejs');
 
 const urlDatabase = {
   // shortURL: 'longURL',
-  b2xVn2: 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com',
-  '9an2ik': 'https://www.tsn.ca'
+  b2xVn2: { longURL: 'http://www.lighthouselabs.ca', userID: 'userRandomID' },
+  '9sm5xK': { longURL: 'http://www.google.com', userID: 'user2RandomID' },
+  '9an2ik': { longURL: 'https://www.tsn.ca', userID: 'userRandomID' }
 };
 
 const users = {
@@ -49,11 +49,22 @@ const findID = function(users, email) {
   return false;
 };
 
+const urlsForUser = function(id) {
+  let usersObject = {};
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      usersObject[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  // console.log(usersObject);
+  return usersObject;
+};
+
 // Render the /urls page based on the urls_index HTML
 app.get('/urls', (req, res) => {
   let templateVars = {
     user: users[req.cookies['user_id']],
-    urls: urlDatabase
+    urls: urlsForUser(req.cookies['user_id'])
   };
   res.render('urls_index', templateVars);
 });
@@ -83,6 +94,10 @@ app.get('/urls.json', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
+  // if the user is undefined redirect to the login page
+  if (!users[req.cookies['user_id']]) {
+    return res.redirect(`/login`);
+  }
   let templateVars = {
     user: users[req.cookies['user_id']]
   };
@@ -92,34 +107,59 @@ app.get('/urls/new', (req, res) => {
 // Create New
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-
+  urlDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    userID: req.cookies['user_id']
+  };
+  // console.log('hola');
+  // console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
 
+// Edit
 app.get('/urls/:shortURL', (req, res) => {
+  if (
+    urlDatabase[req.params.shortURL].longURL !== users[req.cookies['user_id']]
+  ) {
+    return res.status(403).send('You are forbidden from editing this url');
+  }
   let templateVars = {
     user: users[req.cookies['user_id']],
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]
+    longURL: urlDatabase[req.params.shortURL].longURL
   };
+  // console.log('split');
+  // console.log(urlDatabase);
   res.render('urls_show', templateVars);
 });
 
+// Redirecting to the long url given the short url is provided
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
+// Delete
 app.post('/urls/:shortURL/delete', (req, res) => {
+  if (
+    urlDatabase[req.params.shortURL].userID !== users[req.cookies['user_id']]
+  ) {
+    return res.redirect('/urls');
+  }
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
 
+// Post for edit
 app.post('/urls/:shortURL', (req, res) => {
+  if (
+    urlDatabase[req.params.shortURL].userID !== users[req.cookies['user_id']]
+  ) {
+    return res.status(403).send('You are forbidden from editing this url');
+  }
   let shortURL = req.params.shortURL;
   let longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL].longURL = longURL;
   res.redirect('/urls');
 });
 
@@ -160,7 +200,7 @@ app.post('/login', (req, res) => {
 
 // Logout and clear cookies for the user
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id', users[req.cookies['user_id']]);
+  res.clearCookie('user_id');
   // req.session = null;
   res.redirect('/urls');
 });
