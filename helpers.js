@@ -13,14 +13,15 @@ function generateRandomString() {
  * Look thru database to return the user from the database if the passed
  * email is the same as the email in the database
  */
-const getUserByEmail = function(email, database) {
+const getUserByEmail = function (email, database) {
   for (const user in database) {
     // console.log('Another', database[user].email, email);
     if (database[user].email === email) {
       return database[user];
     }
   }
-  return {};
+  return undefined;
 };
 
 module.exports = { generateRandomString, getUserByEmail };
+
