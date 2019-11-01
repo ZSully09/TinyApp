@@ -53,24 +53,26 @@ function generateRandomString() {
 }
 
 // Look thru users object to pull an ID given an email and matching password
-const getUserByEmail = function(users, email) {
-  for (const newID in users) {
-    if (users[newID].email === email) {
-      return users[newID];
-    }
-  }
-  return false;
-};
+// const getUserByEmail = function(users, email) {
+//   for (const newID in users) {
+//     if (users[newID].email === email) {
+//       return users[newID];
+//     }
+//   }
+//   return false;
+// };
 
 // Refactor getUserByEmail
 
-// const getUserByEmail = function(email, database) {
-//   for (const user in database) {
-//     if (database[user].email === email) {
-//       return user;
-//     }
-//   }
-// };
+const getUserByEmail = function(email, database) {
+  for (const user in database) {
+    // console.log('Another', database[user].email, email);
+    if (database[user].email === email) {
+      return database[user];
+    }
+  }
+  return {};
+};
 
 const urlsForUser = function(id) {
   let usersObject = {};
@@ -85,19 +87,12 @@ const urlsForUser = function(id) {
 
 // Render the /urls page based on the urls_index HTML
 app.get('/urls', (req, res) => {
+  // console.log('Cookie ', req.session.user_id);
   let templateVars = {
     user: users[req.session.user_id],
     urls: urlsForUser(req.session.user_id)
   };
   res.render('urls_index', templateVars);
-});
-
-// Render urls_registration for the registration page
-app.get('/register', (req, res) => {
-  let templateVars = {
-    user: users[req.session.user_id]
-  };
-  res.render('urls_registration', templateVars);
 });
 
 // Rending urls_login for the login page
@@ -106,6 +101,14 @@ app.get('/login', (req, res) => {
     user: users[req.session.user_id]
   };
   res.render('urls_login', templateVars);
+});
+
+// Render urls_registration for the registration page
+app.get('/register', (req, res) => {
+  let templateVars = {
+    user: users[req.session.user_id]
+  };
+  res.render('urls_registration', templateVars);
 });
 
 // Render the /urls.json page in JSON format
@@ -206,16 +209,18 @@ app.post('/register', (req, res) => {
 
 // Post login; confirm the email is in the user object; if not return 403; if so confirm passwords match, if they dont then return 403. After email and pw confirmation set the cookie to the users id
 app.post('/login', (req, res) => {
-  const user = getUserByEmail(users, req.body.email);
-  if (req.body.email !== user.email) {
-    return res.status(403).send('Email not found');
-  }
+  const user = getUserByEmail(req.body.email, users);
+  // console.log('Users:', user);
+  // if (req.body.email !== users.email) {
+  //   return res.status(403).send('Email not found');
+  // }
   // console.log(user.password);
   // console.log(bcrypt.compareSync(req.body.password, user.password));
-  if (!bcrypt.compareSync(req.body.password, user.password)) {
+  if (!bcrypt.hashSync(req.body.password, 10) === user.password) {
     return res.status(403).send('Password did not match');
   }
   // console.log(user);
+  // console.log('User id', user.id);
   req.session.user_id = user.id;
   res.redirect('/urls');
 });
