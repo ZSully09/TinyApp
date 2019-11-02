@@ -175,7 +175,7 @@ app.post('/login', (req, res) => {
     return res.status(403).send('User details not found');
   }
   if (!bcrypt.compareSync(req.body.password, user.password)) {
-    return res.status(400).send('Password did not match');
+    return res.status(403).send('Password did not match');
   }
   req.session.user_id = user.id;
   res.redirect('/urls');
