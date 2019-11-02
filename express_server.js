@@ -201,10 +201,6 @@ app.post('/logout', (req, res) => {
   res.redirect('/urls');
 });
 
-// Catch all
-// app.get('*', (req, res) res.redirect())
-// https://github.com/andydlindsay/oct14-w3d3/blob/master/server-session.js
-
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
