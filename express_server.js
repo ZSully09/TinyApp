@@ -174,10 +174,7 @@ app.post('/register', (req, res) => {
       email: req.body.email,
       password: hashedPassword
     };
-    // console.log(bcrypt.compareSync('asdf', hashedPassword));
-    // console.log(hashedPassword);
   }
-  // console.log(users);
   req.session.user_id = newID;
   res.redirect('/urls');
 });
