@@ -30,4 +30,4 @@ TinyApp is a full stack web application built with Node and Express that allows 
 - Run the development web server using the `npm start` command.
 - Install Mocha and Chai dev dependencies using `npm install mocha chai --save-dev`
 - Update test script to `./node_modules/mocha/bin/mocha`
-- While the server is not running, use `npm test` to ensure the provide tests are passing
+- While the server is not running, use `npm test` to ensure the provided tests are passing
