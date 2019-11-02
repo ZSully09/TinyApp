@@ -52,7 +52,10 @@ app.get('/', (req, res) => {
 
 // Render the /urls page based on the urls_index HTML
 app.get('/urls', (req, res) => {
-  // console.log('Cookie ', req.session.user_id);
+  if (!users[req.session.user_id]) {
+    // Poor UX; should auto redirect to login page
+    return res.status(400).send('Please <a href="/login">login</a> to view your URLs. Alternatively, click <a href="/register">here</a> to register.');
+  }
   let templateVars = {
     user: users[req.session.user_id],
     urls: urlsForUser(req.session.user_id, urlDatabase)
@@ -62,6 +65,9 @@ app.get('/urls', (req, res) => {
 
 // Rending urls_login for the login page
 app.get('/login', (req, res) => {
+  if (users[req.session.user_id]) {
+    return res.redirect(`/urls`);
+  }
   let templateVars = {
     user: users[req.session.user_id]
   };
@@ -70,6 +76,9 @@ app.get('/login', (req, res) => {
 
 // Render urls_registration for the registration page
 app.get('/register', (req, res) => {
+  if (users[req.session.user_id]) {
+    return res.redirect(`/urls`);
+  }
   let templateVars = {
     user: users[req.session.user_id]
   };
@@ -102,15 +111,16 @@ app.post('/urls', (req, res) => {
     longURL: req.body.longURL,
     userID: req.session.user_id
   };
-  // console.log('hola');
-  // console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
 
 // Edit
 app.get('/urls/:shortURL', (req, res) => {
+  if (!users[req.session.user_id]) {
+    return res.status(400).send('Please <a href="/login">login</a> to view your short URLs');
+  }
   if (urlDatabase[req.params.shortURL].userID !== req.session.user_id) {
-    return res.status(403).send('You are forbidden from editing this url');
+    return res.status(403).send('You are forbidden from editing this url.');
   }
   let templateVars = {
     user: users[req.session.user_id],
@@ -175,17 +185,12 @@ app.post('/register', (req, res) => {
 // Post login; confirm the email is in the user object; if not return 403; if so confirm passwords match, if they dont then return 403. After email and pw confirmation set the cookie to the users id
 app.post('/login', (req, res) => {
   const user = getUserByEmail(req.body.email, users);
-  // console.log('Users:', user);
-  // if (req.body.email !== users.email) {
-  //   return res.status(403).send('Email not found');
-  // }
-  // console.log(user.password);
-  // console.log(bcrypt.compareSync(req.body.password, user.password));
-  if (!bcrypt.hashSync(req.body.password, 10) === user.password) {
+  if (user === undefined || req.body.email !== user.email) {
+    return res.status(403).send('User details not found');
+  }
+  if (!bcrypt.compareSync(req.body.password, user.password)) {
     return res.status(403).send('Password did not match');
   }
-  // console.log(user);
-  // console.log('User id', user.id);
   req.session.user_id = user.id;
   res.redirect('/urls');
 });
