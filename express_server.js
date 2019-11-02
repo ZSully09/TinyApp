@@ -85,14 +85,6 @@ app.get('/register', (req, res) => {
   res.render('urls_registration', templateVars);
 });
 
-// Render the /urls.json page in JSON format
-app.get('/urls.json', (req, res) => {
-  let templateVars = {
-    user: users[req.session.user_id]
-  };
-  res.json(urlDatabase, templateVars);
-});
-
 app.get('/urls/new', (req, res) => {
   // if the user is undefined redirect to the login page
   if (!users[req.session.user_id]) {
