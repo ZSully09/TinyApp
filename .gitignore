@@ -1,4 +1,4 @@
 node_modules/
 .DS_Store
 tinkering.js
-hello_wolrd.js
+views/hello_wolrd.js
