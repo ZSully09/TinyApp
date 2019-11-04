@@ -13,9 +13,8 @@ function generateRandomString() {
  * Look thru database to return the user from the database if the passed
  * email is the same as the email in the database
  */
-const getUserByEmail = function (email, database) {
+const getUserByEmail = function(email, database) {
   for (const user in database) {
-    // console.log('Another', database[user].email, email);
     if (database[user].email === email) {
       return database[user];
     }
@@ -25,16 +24,14 @@ const getUserByEmail = function (email, database) {
 
 // Leave this function in here as per mentor advice
 // Returns a known users URLs in a object give a passed ID
-const urlsForUser = function (id, urlDatabase) {
+const urlsForUser = function(id, urlDatabase) {
   let usersObject = {};
   for (const shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === id) {
       usersObject[shortURL] = urlDatabase[shortURL];
     }
   }
-  // console.log(usersObject);
   return usersObject;
 };
 
 module.exports = { generateRandomString, getUserByEmail, urlsForUser };
-
